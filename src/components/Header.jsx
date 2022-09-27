@@ -163,7 +163,7 @@ export default function Header() {
             </Link>
           </div>
           <div className="col flex justify-center items-center">
-            <Link to="#">
+            <Link to="/add_to_cart">
               <HiShoppingBag className="h-7 w-7 text-white " />
               <span className="rounded-full absolute -mt-2" id="cart-value-id">
                 {TotalProduct}
@@ -192,15 +192,10 @@ export default function Header() {
                     <i className="fa fa-shopping-cart"></i> My Orders
                   </Link>
                 </li>
-                <li>
-                  <Link class="dropdown-item" to="my_address">
-                    <i className="fa fa-map-marker"> </i>My Address
-                  </Link>
-                </li>
-                <li>
-                  <Link class="dropdown-item" to="/">
-                    <i class="fa fa-question-circle"> </i>Help
-                  </Link>
+                <li class="dropdown-item" onClick={() => LogoutUser()}>
+                  {/* <Link to="/my_order"> */}
+                    <i className="fa fa-shopping-cart"></i> Logout
+                  {/* </Link> */}
                 </li>
               </ul>
             </div>
