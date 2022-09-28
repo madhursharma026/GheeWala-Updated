@@ -8,11 +8,11 @@ function EditProfile() {
 
     const dispatch = useDispatch()
     const [open, setOpen] = React.useState(false);
-    const [userName, setUserName] = React.useState("")
-    const [userAddress, setUserAddress] = React.useState("")
+    const gettingUserDetails = useSelector(state => state.UserDetail)
+    const [userName, setUserName] = React.useState(gettingUserDetails[0].name)
+    const [userAddress, setUserAddress] = React.useState(gettingUserDetails[0].address)
     const [AlertMessage, setAlertMessage] = React.useState("")
     const [AlertMessageBg, setAlertMessageBg] = React.useState("")
-    const gettingUserDetails = useSelector(state => state.UserDetail)
 
     const handleClick = () => {
         setOpen(true);
