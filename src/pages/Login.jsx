@@ -3,7 +3,6 @@ import { Alert } from '@mui/material';
 import { Link } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from "react-router-dom";
-import headerLogo from '../content/images/logo.png'
 import { useDispatch, useSelector } from 'react-redux';
 import { SaveLoginDetails } from "../Redux/UpdatedEcommerceReducer";
 
@@ -21,7 +20,11 @@ function Login() {
   {
     React.useEffect(() => {
       if (gettingUserDetails.length !== 0) {
-        navigate("/")
+        if (gettingUserDetails[0].role === "admin") {
+          navigate("/admin_page")
+        } else {
+          navigate("/")
+        }
       }
     })
   }
@@ -32,7 +35,12 @@ function Login() {
 
   const handleClickSuccess = () => {
     setOpen(true);
-    setTimeout(() => (navigate('/')), 2000);
+    if (gettingUserDetails[0].role === "admin") {
+      setTimeout(() => (navigate('/admin_page')), 2000);
+    } else {
+      setTimeout(() => (navigate('/')), 2000);
+    }
+
   };
 
   const handleClose = (reason) => {
@@ -62,7 +70,7 @@ function Login() {
       setAlertMessage("Login successfully!!!")
       setGettingLoginEmail("")
       setGettingLoginPassword("")
-      dispatch(SaveLoginDetails(output.userId, output.email, output.address, output.name))
+      dispatch(SaveLoginDetails(output.userId, output.email, output.address, output.name, output.role))
       handleClickSuccess()
     } else {
       setAlertMessageBg("danger")
@@ -70,7 +78,6 @@ function Login() {
       handleClick()
     }
   }
-
 
   return (
     <>
@@ -82,13 +89,13 @@ function Login() {
       <div className="login-screen">
         <div>
           <div>
-            <h2 className="fw-semibold text-center mb-5" style={{fontSize:"30px"}}><u>Log In</u></h2>
+            <h2 className="fw-semibold text-center mb-5" style={{ fontSize: "30px" }}><u>Log In</u></h2>
             <form onSubmit={(e) => submitLoginForm(e)}>
               <label for="email_address" className="form-label">Email address</label>
               <input type="email" className="form-control mb-3" id="email_address" autoFocus style={{ width: "100%", fontSize: "18px" }} value={gettingLoginEmail} onChange={(e) => setGettingLoginEmail(e.target.value)} required autoComplete='off' />
               <label for="new_password" className="form-label">Password</label>
               <input type="password" className="form-control mb-3" id="new_password" style={{ width: "100%", fontSize: "18px" }} value={gettingLoginPassword} onChange={(e) => setGettingLoginPassword(e.target.value)} required autoComplete='off' />
-              <button type="submit" class="btn w-100 mt-3" style={{background:"#0B5ED7", color:"white"}}>Continue</button>
+              <button type="submit" class="btn w-100 mt-3" style={{ background: "#0B5ED7", color: "white" }}>Continue</button>
             </form>
             <div className="text-center mt-3">
               <Link to="/signup" className="ms-auto">Signup</Link>

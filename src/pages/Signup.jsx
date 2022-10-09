@@ -22,7 +22,11 @@ function Signup() {
   {
     React.useEffect(() => {
       if (gettingUserDetails.length !== 0) {
-        navigate("/")
+        if (gettingUserDetails[0].role === "admin") {
+          navigate("/admin_page")
+        } else {
+          navigate("/")
+        }
       }
     })
   }
@@ -94,7 +98,7 @@ function Signup() {
       <div className="login-screen">
         <div>
           <div>
-            <h2 className="fw-semibold text-center mb-5" style={{fontSize:"30px"}}><u>Signup</u></h2>
+            <h2 className="fw-semibold text-center mb-5" style={{ fontSize: "30px" }}><u>Signup</u></h2>
             <form onSubmit={(e) => submitSignupForm(e)}>
               <label for="fullname" className="form-label">Full Name</label>
               <input type="text" className="form-control mb-3" id="fullname" autoFocus value={gettingName} onChange={(e) => setGettingName(e.target.value)} required autoComplete='off' style={{ width: "100%", fontSize: "18px" }} />
@@ -107,7 +111,7 @@ function Signup() {
               <label for="address" className="form-label">Address</label>
               <textarea className="form-control mb-3" id="address" value={gettingAddress} onChange={(e) => setGettingAddress(e.target.value)} required autoComplete='off' style={{ width: "100%", fontSize: "18px" }} />
               {/* <button type="submit" class="btn btn-primary w-100 mt-3">Continue</button> */}
-              <button type="submit" class="btn w-100 mt-3" style={{background:"#0B5ED7", color:"white"}}>Continue</button>
+              <button type="submit" class="btn w-100 mt-3" style={{ background: "#0B5ED7", color: "white" }}>Continue</button>
             </form>
             <div className="text-center mt-3">
               <Link to="/login" className="ms-auto">Login</Link>

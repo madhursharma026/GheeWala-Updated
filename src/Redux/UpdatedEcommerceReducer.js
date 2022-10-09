@@ -8,13 +8,14 @@ const CHECKOUTDONE = "CHECKOUTDONE";
 
 
 // Action creators
-export const SaveLoginDetails = (userId, email, address, name) => ({
+export const SaveLoginDetails = (userId, email, address, name, role) => ({
     type: SAVELOGINDETAILS,
     payload: {
         userId: userId,
         email: email,
         address: address,
-        name: name
+        name: name,
+        role: role
     }
 })
 
@@ -84,7 +85,7 @@ const rootReducer = (state = initialState, action) => {
         case SAVELOGINDETAILS:
             return {
                 ...state,
-                UserDetail: [{ "userId": action.payload.userId, "email": action.payload.email, "address": action.payload.address, "name": action.payload.name }],
+                UserDetail: [{ "userId": action.payload.userId, "email": action.payload.email, "address": action.payload.address, "name": action.payload.name, "role": action.payload.role }],
                 BuffaloGhee: state.BuffaloGhee,
                 CowGhee: state.CowGhee
             }

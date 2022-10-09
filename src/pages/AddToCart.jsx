@@ -5,6 +5,7 @@ import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CheckoutDone } from "../Redux/UpdatedEcommerceReducer";
+import { useEffect } from "react";
 
 const AddToCart = () => {
 
@@ -17,17 +18,29 @@ const AddToCart = () => {
     const [open, setOpen] = React.useState(false);
     const [AlertMessage, setAlertMessage] = React.useState("")
     const [AlertMessageBg, setAlertMessageBg] = React.useState("")
+    const [item, setItem] = React.useState([])
+    const [item2, setItem2] = React.useState([])
 
     function CheckOutDone() {
         dispatch(CheckoutDone())
     }
 
+    // {
+    //     React.useEffect(() => {
+    //         if (gettingUserDetails.length === 0) {
+    //             navigate("/login")
+    //         }
+    //     })
+    // }
+
     {
         React.useEffect(() => {
-            if (gettingUserDetails.length === 0) {
-                navigate("/login")
+            if (gettingUserDetails.length >= 1) {
+                if (gettingUserDetails[0].role === "admin") {
+                    navigate("/admin_page")
+                }
             }
-        })
+        }, [])
     }
 
     const handleClick = () => {
@@ -42,30 +55,120 @@ const AddToCart = () => {
         setOpen(false);
     };
 
-    async function placeOrderSubmit() {
-        let userId = gettingUserDetails[0].userId
-        let productId = 1
-        let Qty = TotalQty
-        let data = { Qty }
-        let result = await fetch(`http://localhost:5000/order/place_order/userId=${userId}/productId=${productId}`, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+    const loadScript = (src) => {
+        return new Promise((resolve) => {
+            const script = document.createElement('script')
+            script.src = src
+            script.onload = () => {
+                resolve(true)
             }
+
+            script.onerror = () => {
+                resolve(false)
+            }
+
+            document.body.appendChild(script)
         })
-        let output = ""
-        output = await result.json()
-        if (output.Qty === TotalQty) {
-            setAlertMessageBg("success")
-            setAlertMessage("Order placed!!!")
-            handleClick()
-        } else {
-            setAlertMessageBg("danger")
-            setAlertMessage(output.message)
-            handleClick()
+    }
+
+    const displayRazorpay = async (amount) => {
+        const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js')
+
+        if (!res) {
+            alert("You are offline... Failed to load Razorpay SDK")
+            return
         }
+
+        const options = {
+            key: 'rzp_test_epbuUkrs3QVwte',
+            currency: 'INR',
+            amount: amount * 100,
+            name: gettingUserDetails[0].name,
+            description: "Thanks for Purchasing",
+            image: 'http://localhost:3000/static/media/logo.feabe944101600d0679d.png',
+            handler: function (response) {
+                // alert(response.razorpay_payment_id)
+                handleClick()
+            },
+            prefill: {
+                name: gettingUserDetails[0].name,
+                email: gettingUserDetails[0].email,
+                contact: gettingUserDetails[0].phone_muner,
+            }
+        }
+
+        const paymentOption = new window.Razorpay(options)
+        paymentOption.open()
+    }
+
+    async function placeOrderSubmit() {
+        if (gettingUserDetails.length === 0) {
+            navigate("/login")
+        } else {
+            let userId = gettingUserDetails[0].userId
+            if (BuffaloGheeQty >= 1) {
+                let productId = (item.id)
+                let Qty = BuffaloGheeQty
+                let data = { Qty }
+                let result = await fetch(`http://localhost:5000/order/place_order/userId=${userId}/productId=${productId}`, {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                })
+                let output = ""
+                output = await result.json()
+                if (output.Qty === BuffaloGheeQty) {
+                    setAlertMessageBg("success")
+                    setAlertMessage("Order placed!!!")
+                    // handleClick()
+                } else {
+                    setAlertMessageBg("danger")
+                    setAlertMessage(output.message)
+                    // handleClick()
+                }
+            }
+            if (CowGheeQty >= 1) {
+                let productId = (item2.id)
+                let Qty = CowGheeQty
+                let data = { Qty }
+                let result = await fetch(`http://localhost:5000/order/place_order/userId=${userId}/productId=${productId}`, {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                })
+                let output = ""
+                output = await result.json()
+                if (output.Qty === CowGheeQty) {
+                    setAlertMessageBg("success")
+                    setAlertMessage("Order placed!!!")
+                    // handleClick()
+                } else {
+                    setAlertMessageBg("danger")
+                    setAlertMessage(output.message)
+                    // handleClick()
+                }
+            }
+            displayRazorpay((item.Price * BuffaloGheeQty) + (item2.Price * CowGheeQty))
+            // handleClick()
+        }
+    }
+
+    {
+        useEffect(() => {
+            fetch(`http://127.0.0.1:5000/product`).then((result) => {
+                result.json().then((resp) => {
+                    setItem(resp[0])
+                    setItem2(resp[1])
+                    // dispatch(HomepageDataSave(resp))
+                })
+            })
+        }, [])
     }
 
     return (
@@ -87,7 +190,7 @@ const AddToCart = () => {
                                 </div>
                                 <div className="col-10">
                                     <div className="mb-4">
-                                        <h2 className="fw-bold" style={{fontSize:"2rem"}}>Checkout as a Guest</h2>
+                                        <h2 className="fw-bold" style={{ fontSize: "2rem" }}>Checkout as a Guest</h2>
                                         <p className="">Already have an account? <Link to="/">Login <i class="fa fa-angle-right"></i></Link></p>
                                     </div>
                                     <div className="">
@@ -111,7 +214,7 @@ const AddToCart = () => {
                                     </div>
                                 </div>
                                 <div className="col-10">
-                                        <h2 className="" style={{fontSize:"2rem"}}>Shipping Address</h2>
+                                    <h2 className="" style={{ fontSize: "2rem" }}>Shipping Address</h2>
                                 </div>
                             </div>
                             <hr />
@@ -122,7 +225,7 @@ const AddToCart = () => {
                                     </div>
                                 </div>
                                 <div className="col-10">
-                                        <h2 className="" style={{fontSize:"2rem"}}>Delivery Method</h2>
+                                    <h2 className="" style={{ fontSize: "2rem" }}>Delivery Method</h2>
                                 </div>
                             </div>
                             <hr />
@@ -133,23 +236,23 @@ const AddToCart = () => {
                                     </div>
                                 </div>
                                 <div className="col-10">
-                                        <h2 className="" style={{fontSize:"2rem"}}>Payment</h2>
+                                    <h2 className="" style={{ fontSize: "2rem" }}>Payment</h2>
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-6 item_details px-4 order-1 order-lg-2">
                             <div className="container container-lg-fluid">
-                                <h3 className="" style={{fontSize:"28px"}}><b>Cart({TotalQty})</b></h3>
+                                <h3 className="" style={{ fontSize: "28px" }}><b>Cart({TotalQty})</b></h3>
                                 {
                                     BuffaloGheeQty >= 1 ?
                                         <div className="row product_details pt-3">
                                             <div className="col-3 col-xl-2" style={{ textAlign: "right" }}>
-                                                <img src="https://cdn.shopify.com/s/files/1/1865/1011/products/FFCTCHB_1_1_7c8337ba-ebd3-43d4-a270-8230d51b3250_1_1024x.jpg?v=1653632514" alt="#ImgNotFound" width="80px" height="80px" />
+                                                <img src={`http://localhost:5000/public/${item.ProductImage}`} alt="#ImgNotFound" width="80px" height="80px" />
                                             </div>
                                             <div className="col-9 col-xl-10" style={{ textAlign: "left" }}>
-                                                <h6>Pure Buffalo Ghee</h6>
+                                                <h6>{item.Title}</h6>
                                                 <h6>QTY: {BuffaloGheeQty}</h6>
-                                                <h6>$650.00</h6>
+                                                <h6>${item.Price}</h6>
                                             </div>
                                         </div>
                                         :
@@ -159,12 +262,12 @@ const AddToCart = () => {
                                     CowGheeQty >= 1 ?
                                         <div className="row product_details pt-3">
                                             <div className="col-3 col-xl-2" style={{ textAlign: "right" }}>
-                                                <img src="https://cdn.shopify.com/s/files/1/1865/1011/products/FFCTCHB_2_480x.jpg?v=1653632514" alt="#ImgNotFound" width="80px" height="80px" />
+                                                <img src={`http://localhost:5000/public/${item2.ProductImage}`} alt="#ImgNotFound" width="80px" height="80px" />
                                             </div>
                                             <div className="col-9 col-xl-10" style={{ textAlign: "left" }}>
-                                                <h6>Pure Desi Cow Ghee</h6>
+                                                <h6>{item2.Title}</h6>
                                                 <h6>QTY: {CowGheeQty}</h6>
-                                                <h6>$650.00</h6>
+                                                <h6>${item2.Price}</h6>
                                             </div>
                                         </div>
                                         :
@@ -175,7 +278,15 @@ const AddToCart = () => {
                                         <h6>Subtotal</h6>
                                     </div>
                                     <div className="col-6" style={{ float: "right" }}>
-                                        <h6>${650 * TotalQty}</h6>
+                                        {/* <h6>${650 * TotalQty}</h6> */}
+                                        <>
+                                            {
+                                                (BuffaloGheeQty >= 1 || CowGheeQty >= 1) ?
+                                                    <>{(item.Price * BuffaloGheeQty) + (item2.Price * CowGheeQty)}</>
+                                                    :
+                                                    <>0</>
+                                            }
+                                        </>
                                     </div>
                                     <div className="col-6">
                                         <h6>Shipping</h6>
@@ -193,7 +304,7 @@ const AddToCart = () => {
                                         <h6>Checkout</h6>
                                     </div>
                                     <div className="col-6 pt-2" style={{ float: "right" }}>
-                                        <h6><button type="button" class="btn" onClick={() => placeOrderSubmit()} style={{background:"#157347", color:"white"}}>Checkout</button></h6>
+                                        <h6><button type="button" class="btn" onClick={() => placeOrderSubmit()} style={{ background: "#157347", color: "white" }}>Checkout</button></h6>
                                     </div>
                                     <div className="col-6 pt-3">
                                         <h4>Total</h4>
@@ -229,7 +340,7 @@ const AddToCart = () => {
                     </div>
                     :
                     <div className="my-5">
-                        <h1 className="text-center" style={{fontSize:"32px"}}><b>No Product Found!</b></h1>
+                        <h1 className="text-center" style={{ fontSize: "32px" }}><b>No Product Found!</b></h1>
                         <div className="text-center">
                             <Link className="btn btn-outline-primary mt-4" to='/'>
                                 Go To Home

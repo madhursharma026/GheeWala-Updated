@@ -17,14 +17,39 @@ function Home() {
 
   const navigate = useNavigate();
   const gettingUserDetails = useSelector(state => state.UserDetail)
+  const [item, setItem] = React.useState([])
+  const [item2, setItem2] = React.useState([])
+
+  // {
+  //   React.useEffect(() => {
+  //     if (gettingUserDetails.length === 0) {
+  //       navigate("/login")
+  //     }
+  //   })
+  // }
 
   {
-      React.useEffect(() => {
-          if (gettingUserDetails.length === 0) {
-              navigate("/login")
-          }
-      })
+    React.useEffect(() => {
+      if (gettingUserDetails.length >= 1) {
+      if (gettingUserDetails[0].role === "admin") {
+        navigate("/admin_page")
+      }
+    }
+    }, [])
   }
+
+  {
+    React.useEffect(() => {
+      fetch(`http://127.0.0.1:5000/product`).then((result) => {
+        result.json().then((resp) => {
+          setItem(resp[1])
+          setItem2(resp[0])
+          // dispatch(HomepageDataSave(resp))
+        })
+      })
+    }, [])
+  }
+
   return (
     <>
       <div className="relative w-full h-full flex flex-col justify-center items-center bg-gray-50 overflow-hidden pl-0 sm:pl-20 header_image">
@@ -92,11 +117,11 @@ function Home() {
             <Link to="/buffalo-ghee" style={{ textDecoration: "none" }}>
               <ProductCardStyle
                 number="1"
-                productImg={product1}
+                productImg={`http://localhost:5000/public/${item2.ProductImage}`}
                 ratingQty="15"
-                productName="Pure Buffalo Ghee"
+                productName={item2.Title}
                 productCategory="Pure Desi Ghee"
-                productDescription="Delicious ghee ethically prepared from enzyme-rich yoghurt of pure breed buffalos"
+                productDescription={item2.ShortDescription}
                 Attribute={["500gm", "1kg", "5kg"]}
                 OriginalPrice={[900, 1600, 7500]}
                 DiscountedPrice={[650, 1250, 5400]}
@@ -116,11 +141,11 @@ function Home() {
             <Link to="/cow-ghee" style={{ textDecoration: "none" }}>
               <ProductCardStyle
                 number="2"
-                productImg={product1}
+                productImg={`http://localhost:5000/public/${item.ProductImage}`}
                 ratingQty="15"
-                productName="Pure Desi Cow Ghee"
+                productName={item.Title}
                 productCategory="Pure Desi Ghee"
-                productDescription="Pure desi Gir cow bilona ghee  made from desi cow milk using the ancient bilona method"
+                productDescription={item.ShortDescription}
                 Attribute={["500gm", "1kg", "5kg"]}
                 OriginalPrice={[900, 1600, 7500]}
                 DiscountedPrice={[650, 1250, 5400]}
